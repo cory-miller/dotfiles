@@ -1,0 +1,17 @@
+{
+    "KPlugin": {
+        "Name": "Window Custom Resizer",
+        "Description": "Resizes the active window to a specific preset size on Wayland",
+        "Icon": "preferences-system-windows",
+        "Id": "custom-resizer",
+        "Version": "1.2",
+        "Authors": [
+            {
+                "Name": "Cory Miller"
+            }
+        ]
+    },
+    "X-Plasma-API": "javascript",
+    "X-Plasma-MainScript": "code/main.js",
+    "KPackageStructure": "KWin/Script"
+}
