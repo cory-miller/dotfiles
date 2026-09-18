@@ -4,7 +4,7 @@ local mason_registry = require("mason-registry")
 local function get_python_path(root_dir)
     local venv = os.getenv("VIRTUAL_ENV")
 
-    if venv and vim.fn.filecopyereadable(vim.fs.joinpath(venv, "bin", "python")) == true then
+    if venv and vim.fn.filereadable(vim.fs.joinpath(venv, "bin", "python")) == true then
         return vim.fs.joinpath(venv, "bin", "python")
     end
 
