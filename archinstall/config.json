@@ -1,0 +1,44 @@
+{
+  "archinstall-version": "2.8.1",
+  "bootloader": "Systemd-Boot",
+  "nic": {
+    "nic": "Use NetworkManager"
+  },
+  "packages": [
+    "base",
+    "base-devel",
+    "curl",
+    "egl-wayland",
+    "fd",
+    "gcc",
+    "git",
+    "go",
+    "iwd",
+    "lib32-nvidia-utils",
+    "linux",
+    "linux-firmware",
+    "make",
+    "neovim",
+    "networkmanager",
+    "nvidia",
+    "nvidia-settings",
+    "nvidia-utils",
+    "qt6-wayland",
+    "raylib",
+    "ripgrep",
+    "steam",
+    "stow",
+    "unzip",
+    "wget",
+    "wpa_supplicant",
+    "zsh"
+  ],
+  "profile_config": {
+    "profile": {
+      "details": [
+        "KDE Plasma"
+      ],
+      "main": "Desktop"
+    }
+  }
+}
