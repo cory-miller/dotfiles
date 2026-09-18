@@ -4,7 +4,7 @@ local mason_registry = require("mason-registry")
 local function get_python_path(root_dir)
     local venv = os.getenv("VIRTUAL_ENV")
 
-    if venv and vim.fn.filereadable(vim.fs.joinpath(venv, "bin", "python")) == true then
+    if venv and vim.fn.filereadable(vim.fs.joinpath(venv, "bin", "python")) == 1 then
         return vim.fs.joinpath(venv, "bin", "python")
     end
 
@@ -45,6 +45,8 @@ local function setup_pyright()
             config.settings = config.settings or {}
             config.settings.python = config.settings.python or {}
             config.settings.python.pythonPath = py_path
+            config.settings.python.analysis = config.settings.python.analysis or {}
+            config.settings.python.analysis.extraPaths = { config.root_dir or vim.fn.getcwd() }
         end,
         settings = {
             python = {
