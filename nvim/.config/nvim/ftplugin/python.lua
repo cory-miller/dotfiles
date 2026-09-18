@@ -38,15 +38,21 @@ local function setup_pyright()
     vim.lsp.config("pyright", {
         cmd = { "pyright-langserver", "--stdio" },
         filetypes = { "python" },
-        root_markers = { "pyproject.toml", "setup.py", "setup.cfg", "requirements.txt", ".git" },
+        root_markers = {
+            ".git",
+            "pyrightconfig.json",
+            "pyproject.toml",
+            "setup.py",
+            "setup.cfg",
+            "requirements.txt",
+        },
         capabilities = capabilities,
         before_init = function(_, config)
-            local py_path = get_python_path(config.root_dir)
+            local root = config.root_dir or vim.fn.getcwd()
+            local py_path = get_python_path(root)
             config.settings = config.settings or {}
             config.settings.python = config.settings.python or {}
             config.settings.python.pythonPath = py_path
-            config.settings.python.analysis = config.settings.python.analysis or {}
-            config.settings.python.analysis.extraPaths = { config.root_dir or vim.fn.getcwd() }
         end,
         settings = {
             python = {
