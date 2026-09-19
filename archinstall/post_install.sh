@@ -41,6 +41,23 @@ fi
 # ----------------------------------------------------------------------
 echo "==> Starting Post-Install Setup inside Chroot..."
 
+echo "==> Setting up user account: $TARGET_USER..."
+
+if ! id "$TARGET_USER" &>/dev/null; then
+  useradd -m -G wheel,video,audio,input,storage -s "$(which zsh 2>/dev/null || echo /bin/bash)" "$TARGET_USER"
+  
+  # Set temporary password
+  echo "$TARGET_USER:12345" | chpasswd
+
+  # Expire password so user is forced to change it on first login
+  chage -d 0 "$TARGET_USER"
+  echo "    Created user $TARGET_USER with temporary password."
+fi
+
+if [ -f /etc/sudoers ]; then
+  sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
+fi
+
 # 1. Enable [multilib] repository in pacman.conf
 echo "==> Enabling [multilib] repository..."
 if ! grep -q "^\[multilib\]" /etc/pacman.conf; then
@@ -97,11 +114,7 @@ su - "$TARGET_USER" -c "paru -S --noconfirm odin-git faugus-launcher ghostty viv
 
 rm -f /etc/sudoers.d/99-temp-install
 
-# 7. Expire password to force change on first login
-echo "==> Expiring password for $TARGET_USER..."
-chage -d 0 "$TARGET_USER"
-
-# 8. Enable system services
+# 7. Enable system services
 echo "==> Enabling System Services..."
 systemctl enable NetworkManager.service
 systemctl enable sddm.service
