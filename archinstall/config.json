@@ -53,6 +53,8 @@
     "qt6-wayland",
     "raylib",
     "ripgrep",
+    "sddm",
+    "sddm-kcm",
     "steam",
     "stow",
     "tar",
