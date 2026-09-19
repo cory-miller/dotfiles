@@ -10,9 +10,6 @@ if [ -z "$TARGET_USER" ]; then
   exit 1
 fi
 
-DOTFILES_REPO="https://github.com/cory-miller/dotfiles.git"
-TARGET_DIR="/home/$TARGET_USER/dotfiles"
-
 # ----------------------------------------------------------------------
 # CHROOT WRAPPER BLOCK
 # If running on the Live ISO, auto-chroot into /mnt and re-run this script
@@ -41,44 +38,49 @@ fi
 # ----------------------------------------------------------------------
 echo "==> Starting Post-Install Setup inside Chroot..."
 
+mkdir -p /tmp
+chmod 1777 /tmp
+
+DOTFILES_REPO="https://github.com/cory-miller/dotfiles.git"
+TARGET_DIR="/home/$TARGET_USER/dotfiles"
+
 echo "==> Setting up user account: $TARGET_USER..."
 
 if ! id "$TARGET_USER" &>/dev/null; then
   useradd -m -G wheel,video,audio,input,storage -s "$(which zsh 2>/dev/null || echo /bin/bash)" "$TARGET_USER"
   
-  # Set temporary password
   echo "$TARGET_USER:12345" | chpasswd
 
   # Expire password so user is forced to change it on first login
   chage -d 0 "$TARGET_USER"
-  echo "    Created user $TARGET_USER with temporary password."
+  echo "==> Created user $TARGET_USER with temporary password."
 fi
 
 if [ -f /etc/sudoers ]; then
   sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
 fi
 
-# 1. Enable [multilib] repository in pacman.conf
+# Enable [multilib] repository in pacman.conf
 echo "==> Enabling [multilib] repository..."
 if ! grep -q "^\[multilib\]" /etc/pacman.conf; then
   sed -i '/^#\[multilib\]/{s/^#//;n;s/^#//}' /etc/pacman.conf
   pacman -Sy --noconfirm
 fi
 
-# 2. Configure Nvidia DRM Modesetting for systemd-boot
+# Configure Nvidia DRM Modesetting for systemd-boot
 echo "==> Configuring Nvidia DRM Modesetting..."
 ENTRY_FILE=$(find /boot/loader/entries/ -name "*.conf" 2>/dev/null | head -n 1 || true)
 
 if [ -n "$ENTRY_FILE" ]; then
   if ! grep -q "nvidia_drm.modeset=1" "$ENTRY_FILE"; then
     sed -i '/^options/ s/$/ nvidia_drm.modeset=1/' "$ENTRY_FILE"
-    echo "    Added nvidia_drm.modeset=1 to $ENTRY_FILE"
+    echo "==> Added nvidia_drm.modeset=1 to $ENTRY_FILE"
   fi
 else
-  echo "    [NOTE] No systemd-boot entry file found in /boot/loader/entries/. Ensure kernel parameters are updated."
+  echo "==> [NOTE] No systemd-boot entry file found in /boot/loader/entries/. Ensure kernel parameters are updated."
 fi
 
-# 3. Set default shell to ZSH for the user
+# Set default shell to ZSH for the user
 echo "==> Setting default shell to ZSH for $TARGET_USER..."
 if command -v zsh >/dev/null 2>&1; then
   chsh -s "$(which zsh)" "$TARGET_USER"
@@ -87,7 +89,7 @@ else
   chsh -s "$(which zsh)" "$TARGET_USER"
 fi
 
-# 4. Clone dotfiles and Stow as non-root user
+# Clone dotfiles and Stow as non-root user
 echo "==> Setting up dotfiles for $TARGET_USER..."
 su - "$TARGET_USER" -c "
   if [ ! -d '$TARGET_DIR' ]; then
@@ -99,22 +101,24 @@ su - "$TARGET_USER" -c "
 
 echo "$TARGET_USER ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/99-temp-install
 
-# 5. Build and install Paru (AUR Helper) as non-root user
-echo "==> Building and installing paru..."
-su - "$TARGET_USER" -c "
-  cd /tmp
-  git clone https://aur.archlinux.org/paru-bin.git
-  cd paru-bin
+# Build and install Yay (AUR Helper) as non-root user
+echo "==> Building and installing yay..."
+su - "$TARGET_USER" -c '
+  BUILD_DIR="$HOME/yay_build"
+  rm -rf "$BUILD_DIR"
+  git clone https://aur.archlinux.org/yay-bin.git "$BUILD_DIR"
+  cd "$BUILD_DIR"
   makepkg -si --noconfirm
-  cd /tmp && rm -rf paru-bin
-"
-# 6. Install AUR Packages as non-root user
+  rm -rf "$BUILD_DIR"
+'
+
+# Install AUR Packages as non-root user
 echo "==> Installing AUR packages..."
-su - "$TARGET_USER" -c "paru -S --noconfirm odin-git faugus-launcher ghostty vivaldi"
+su - "$TARGET_USER" -c "yay -S --noconfirm faugus-launcher ghostty vivaldi"
 
 rm -f /etc/sudoers.d/99-temp-install
 
-# 7. Enable system services
+# Enable system services
 echo "==> Enabling System Services..."
 systemctl enable NetworkManager.service
 systemctl enable sddm.service
