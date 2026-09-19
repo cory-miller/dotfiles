@@ -2,8 +2,15 @@
 
 set -eo pipefail
 
-TARGET_USER="yourusername"
-DOTFILES_REPO="https://github.com/<your-username>/dotfiles.git"
+TARGET_USER="$1"
+
+if [ -z "$TARGET_USER" ]; then
+  echo "Error: No user specified."
+  echo "Usage: $0 youruser"
+  exit 1
+fi
+
+DOTFILES_REPO="https://github.com/cory-miller/dotfiles.git"
 TARGET_DIR="/home/$TARGET_USER/dotfiles"
 
 # ----------------------------------------------------------------------
@@ -22,7 +29,7 @@ if [ ! -f /.chroot_active ]; then
   cp "$0" /mnt/root/post_install.sh
   chmod +x /mnt/root/post_install.sh
 
-  arch-chroot /mnt /root/post_install.sh
+  arch-chroot /mnt /root/post_install.sh $TARGET_USER
 
   rm -f /mnt/.chroot_active /mnt/root/post_install.sh
   echo "==> Chroot execution complete! Unmount /mnt and reboot when ready."
@@ -73,19 +80,22 @@ su - "$TARGET_USER" -c "
   stow -v -t '/home/$TARGET_USER' nvim zsh
 "
 
+echo "$TARGET_USER ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/99-temp-install
+
 # 5. Build and install Paru (AUR Helper) as non-root user
 echo "==> Building and installing paru..."
 su - "$TARGET_USER" -c "
-  BUILD_DIR=\$(mktemp -d)
-  git clone https://aur.archlinux.org/paru-bin.git \"\$BUILD_DIR/paru\"
-  cd \"\$BUILD_DIR/paru\"
+  cd /tmp
+  git clone https://aur.archlinux.org/paru-bin.git
+  cd paru-bin
   makepkg -si --noconfirm
-  rm -rf \"\$BUILD_DIR\"
+  cd /tmp && rm -rf paru-bin
 "
-
 # 6. Install AUR Packages as non-root user
 echo "==> Installing AUR packages..."
 su - "$TARGET_USER" -c "paru -S --noconfirm odin-git faugus-launcher ghostty vivaldi"
+
+rm -f /etc/sudoers.d/99-temp-install
 
 # 7. Expire password to force change on first login
 echo "==> Expiring password for $TARGET_USER..."
