@@ -9,6 +9,15 @@ return {
             { "<leader>fb", "<cmd>Telescope buffers<cr>",    desc = "Find Buffers" },
             { "<leader>fh", "<cmd>Telescope help_tags<cr>",  desc = "Search Help" },
         },
+        opts = {
+            pickers = {
+                find_files = {
+                    file_ignore_patterns = { ".git", "node_modules" },
+                    hidden = true,
+                    no_ignore = true,
+                },
+            },
+        },
     },
     -- File Tree Navigation
     {
