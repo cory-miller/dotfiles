@@ -5,6 +5,7 @@ return {
         require("nvim-treesitter").setup({
             -- Pre-install parsers for Go, Odin, and Lua
             ensure_installed = {
+                "bash",
                 "go",
                 "gomod",
                 "gowork",
