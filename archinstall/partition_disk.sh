@@ -5,16 +5,16 @@ set -eo pipefail
 DISK="$1"
 
 if [ -z "$DISK" ]; then
-  echo "Error: No disk specified."
-  echo "Usage: $0 /dev/sdX  OR  $0 /dev/nvmeXnY"
-  echo "Available disks:"
-  lsblk -d -o NAME,SIZE,TYPE,MODEL | grep disk
-  exit 1
+    echo "Error: No disk specified."
+    echo "Usage: $0 /dev/sdX  OR  $0 /dev/nvmeXnY"
+    echo "Available disks:"
+    lsblk -d -o NAME,SIZE,TYPE,MODEL | grep disk
+    exit 1
 fi
 
 if [ ! -b "$DISK" ]; then
-  echo "Error: Block device '$DISK' does not exist."
-  exit 1
+    echo "Error: Block device '$DISK' does not exist."
+    exit 1
 fi
 
 echo "============================================================"
@@ -68,4 +68,3 @@ swapon "$SWAP_PART"
 
 echo "==> Disk partitioning complete! Mount layout:"
 lsblk -o NAME,FSTYPE,LABEL,SIZE,MOUNTPOINTS "$DISK"
-
