@@ -13,7 +13,7 @@ station <dev> connect <network>
 
 ```
 for file in partition_disk.sh config.json post_install.sh; do
-    curl -O "https://example.com/path/to/${file}"
+    curl -O "https://raw.githubusercontent.com/cory-miller/dotfiles/main/archinstall/${file}"
 done
 ```
 
