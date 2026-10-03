@@ -1,23 +1,38 @@
 # archinstall instructions
 
-## 1. Partition and format disk
-
-`./partition_disk.sh /dev/nvme0n1`
-
-## 2. Run archinstall using mounted partitions
+---
 
 ```
-archinstall \
-    --config https://raw.githubusercontent.com/cory-miller/dotfiles/main/archinstall/config.json
+iwctl
+device list
+station list
+station <dev> connect <network>
 ```
 
-## 3. Execute post-install (auto-detects and chroots into /mnt)
+---
 
 ```
-curl -sL https://raw.githubusercontent.com/cory-miller/dotfiles/main/archinstall/post_install.sh \
-    -o post_install.sh
+for file in partition_disk.sh config.json post_install.sh; do
+    curl -O "https://example.com/path/to/${file}"
+done
+```
+
+---
+
+```
+chmod +x partition_disk.sh
+./partition_disk.sh /dev/nvme0n1`
+```
+
+---
+
+```
+archinstall --config config.json
+```
+
+---
+
+```
 chmod +x post_install.sh
 ./post_install.sh cory
 ```
-
-## 4. Reboot
