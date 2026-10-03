@@ -118,13 +118,21 @@ else
 fi
 
 # Clone dotfiles and Stow as non-root user
+# Note: The Stow anchor files ensure folding occurs
+# at the correct level rather than higher up the directory.
 echo "==> Setting up dotfiles for $TARGET_USER..."
 su - "$TARGET_USER" -c "
   if [ ! -d '$TARGET_DIR' ]; then
     git clone '$DOTFILES_REPO' '$TARGET_DIR'
   fi
   cd '$TARGET_DIR'
+  mkdir -p ~/.config
+  touch ~/.config/.stow-anchor
+  mkdir -p ~/.local/share
+  touch ~/.local/share/.stow-anchor
   stow -v -t '/home/$TARGET_USER' ghostty kwin nvim zsh
+  rm ~/.config/.stow-anchor
+  rm ~/.local/share/.stow-anchor
 "
 
 # Some default theme for login and boot screen
