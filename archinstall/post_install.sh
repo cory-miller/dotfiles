@@ -124,7 +124,7 @@ su - "$TARGET_USER" -c "
     git clone '$DOTFILES_REPO' '$TARGET_DIR'
   fi
   cd '$TARGET_DIR'
-  stow -v -t '/home/$TARGET_USER' kwin ghostty nvim zsh
+  stow -v -t '/home/$TARGET_USER' ghostty kwin nvim zsh
 "
 
 # Some default theme for login and boot screen
