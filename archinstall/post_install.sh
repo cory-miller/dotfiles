@@ -134,6 +134,17 @@ echo -e "[Theme]\nCurrent=breeze" | tee /etc/sddm.conf.d/theme.conf
 
 # Plymouth requires an initramfs hook to function
 if [ -f /etc/mkinitcpio.conf ]; then
+    echo "==> Configuring Plymouth kernel parameters"
+
+    if [ -d /boot/loader/entries ]; then
+        for entry in /boot/loader/entries/*.conf; do
+            ! grep -q "quiet" "$entry" && sed -i '/^options/ s/$/ quiet/' "$entry"
+            ! grep -q "splash" "$entry" && sed -i '/^options/ s/$/ splash/' "$entry"
+        done
+    else
+        echo "==> [NOTE] No systemd-boot entry file found in /boot/loader/entries/. Ensure kernel parameters are updated."
+    fi
+
     echo "==> Configuring Plymouth hook in /etc/mkinitcpio.conf..."
 
     if ! grep -q "plymouth" /etc/mkinitcpio.conf; then
