@@ -8,8 +8,7 @@
 
 ```
 archinstall \
-    --config https://raw.githubusercontent.com/cory-miller/dotfiles/main/archinstall/config.json \
-    --creds https://raw.githubusercontent.com/cory-miller/dotfiles/main/archinstall/creds.json
+    --config https://raw.githubusercontent.com/cory-miller/dotfiles/main/archinstall/config.json
 ```
 
 ## 3. Execute post-install (auto-detects and chroots into /mnt)
@@ -22,4 +21,3 @@ chmod +x post_install.sh
 ```
 
 ## 4. Reboot
-
