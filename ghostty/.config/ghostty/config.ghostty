@@ -1,0 +1,9 @@
+theme = Monokai Classic
+
+cursor-click-to-move             = false
+mouse-scroll-multiplier          = precision:0.4,discrete:1.0
+split-inherit-working-directory  = true
+tab-inherit-working-directory    = true
+window-inherit-working-directory = true
+window-show-tab-bar              = always
+
