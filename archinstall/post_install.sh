@@ -67,17 +67,52 @@ if ! grep -q "^\[multilib\]" /etc/pacman.conf; then
   pacman -Sy --noconfirm
 fi
 
-# Configure Nvidia DRM Modesetting for systemd-boot
-echo "==> Configuring Nvidia DRM Modesetting..."
-ENTRY_FILE=$(find /boot/loader/entries/ -name "*.conf" 2>/dev/null | head -n 1 || true)
+PACKAGES=()
 
-if [ -n "$ENTRY_FILE" ]; then
-  if ! grep -q "nvidia_drm.modeset=1" "$ENTRY_FILE"; then
-    sed -i '/^options/ s/$/ nvidia_drm.modeset=1/' "$ENTRY_FILE"
-    echo "==> Added nvidia_drm.modeset=1 to $ENTRY_FILE"
+# Query display adapters using standard PCI-SIG Class Codes:
+#   0300: VGA compatible controller
+#   0302: 3D controller (Dedicated GPUs)
+#   0380: Display controller
+# Reference: https://pci-ids.ucw.cz/read/PD/03
+PCI_DISPLAY_DEVICES=$(lspci -nn | grep -E "\[03(00|02|80)\]")
+
+# AMD GPU Detection
+if echo "$PCI_DISPLAY_DEVICES" | grep -qi -E "AMD|ATI|Advanced Micro Devices"; then
+  echo " ==> AMD GPU detected. Adding RADV Vulkan and Mesa drivers..."
+  PACKAGES=("vulkan-radeon" "lib32-vulkan-radeon" "libva-mesa-driver" "lib32-libva-mesa-driver")
+fi
+
+# Intel GPU Detection
+if echo "$PCI_DISPLAY_DEVICES" | grep -qi "Intel"; then
+  echo " -> Intel Graphics detected. Adding Intel Vulkan and Media drivers..."
+  PACKAGES+=("vulkan-intel" "lib32-vulkan-intel" "intel-media-driver")
+fi
+
+# Nvidia GPU Detection
+if echo "$PCI_DISPLAY_DEVICES" | grep -qi "NVIDIA"; then
+  echo "==> NVIDIA GPU detected. Adding 64-bit and 32-bit proprietary stack..."
+  PACKAGES+=("nvidia-open" "nvidia-utils" "lib32-nvidia-utils" "nvidia-settings")
+
+  if [ -d /boot/loader/entries ]; then
+    for entry in /boot/loader/entries/*.conf; do
+      ! grep -q "nvidia_drm.modeset=1" "$entry" && sed -i '/^options/ s/$/ nvidia_drm.modeset=1/' "$entry"
+      ! grep -q "nvidia_drm.fbdev=1" "$entry" && sed -i '/^options/ s/$/ nvidia_drm.fbdev=1/' "$entry"
+      ! grep -q "nvidia.NVreg_PreserveVideoMemoryAllocations=1" "$entry" && sed -i '/^options/ s/$/ nvidia.NVreg_PreserveVideoMemoryAllocations=1/' "$entry"
+
+      systemctl enable nvidia-suspend.service nvidia-hibernate.service nvidia-resume.service
+    done
+  else
+    echo "==> [NOTE] No systemd-boot entry file found in /boot/loader/entries/. Ensure kernel parameters are updated."
   fi
+fi
+
+# GPU Package Installation
+if [ ${#PACKAGES[@]} -gt 0 ]; then
+  readarray -t UNIQUE_PACKAGES < <(printf "%s\n" "${PACKAGES[@]}" | sort -u)
+  echo "Installing packages: ${UNIQUE_PACKAGES[*]}"
+  pacman -S --needed --noconfirm "${UNIQUE_PACKAGES[@]}"
 else
-  echo "==> [NOTE] No systemd-boot entry file found in /boot/loader/entries/. Ensure kernel parameters are updated."
+  echo "Hardware scan complete."
 fi
 
 # Set default shell to ZSH for the user
@@ -120,7 +155,9 @@ rm -f /etc/sudoers.d/99-temp-install
 
 # Enable system services
 echo "==> Enabling System Services..."
+systemctl enable bluetooth.service
 systemctl enable NetworkManager.service
+systemctl enable power-profiles-daemon.service
 systemctl enable sddm.service
 
 echo "==> Chroot Post-Install finished successfully!"
