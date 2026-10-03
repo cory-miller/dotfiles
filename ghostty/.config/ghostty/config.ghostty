@@ -1,6 +1,7 @@
-theme = Monokai Classic
+theme = catppuccin-macchiato
 
 cursor-click-to-move             = false
+font-family                      = "RobotoMono Nerd Font"
 mouse-scroll-multiplier          = precision:0.4,discrete:1.0
 split-inherit-working-directory  = true
 tab-inherit-working-directory    = true
