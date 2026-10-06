@@ -191,8 +191,12 @@ rm -f /etc/sudoers.d/99-temp-install
 # Enable system services
 echo "==> Enabling System Services..."
 systemctl enable bluetooth.service
+systemctl enable firewalld.service
 systemctl enable NetworkManager.service
 systemctl enable power-profiles-daemon.service
 systemctl enable sddm.service
+
+# Disable root login
+passwd --lock root
 
 echo "==> Chroot Post-Install finished successfully!"
