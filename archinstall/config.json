@@ -30,6 +30,7 @@
     "firewall-config",
     "gcc",
     "git",
+    "github-cli",
     "go",
     "htop",
     "iwd",
@@ -72,6 +73,7 @@
     "unzip",
     "wget",
     "wireplumber",
+    "wl-clipboard",
     "wpa_supplicant",
     "zip",
     "zsh"
