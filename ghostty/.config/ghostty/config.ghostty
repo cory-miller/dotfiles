@@ -1,5 +1,6 @@
 cursor-click-to-move             = false
 font-family                      = "RobotoMono Nerd Font"
+font-size                        = 10
 mouse-scroll-multiplier          = precision:0.4,discrete:1.0
 split-inherit-working-directory  = true
 tab-inherit-working-directory    = true
