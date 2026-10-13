@@ -1,6 +1,7 @@
 vim.opt_local.expandtab = false
 
 local capabilities = require("blink.cmp").get_lsp_capabilities()
+local mason_registry = require("mason-registry")
 
 local function setup_ols()
     vim.lsp.config('ols', {
