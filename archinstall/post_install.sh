@@ -196,6 +196,13 @@ systemctl enable NetworkManager.service
 systemctl enable power-profiles-daemon.service
 systemctl enable sddm.service
 
+echo "==> Enabling User Session Services..."
+su - "$TARGET_USER" -c '
+    systemctl --user enable pipewire.service
+    systemctl --user enable pipewire-pulse.socket
+    systemctl --user enable wireplumber.service
+'
+
 # Disable root login
 passwd --lock root
 
