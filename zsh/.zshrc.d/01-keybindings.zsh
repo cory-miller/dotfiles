@@ -3,6 +3,7 @@ bindkey -e
 
 # Ctrl+R for interactive reverse history search
 bindkey '^R' history-incremental-search-backward
+bindkey '^F' history-incremental-search-forward
 
 # Up/Down arrows search history matching current typed prefix
 autoload -U up-line-or-beginning-search down-line-or-beginning-search
