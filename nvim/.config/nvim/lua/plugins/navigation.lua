@@ -28,7 +28,11 @@ return {
             { "<leader>E", "<cmd>NvimTreeFocus<cr>",  desc = "Focus File Explorer" },
         },
         opts = {
-            filters = { dotfiles = false, git_ignored = true },
+            filters = {
+                custom = { "^\\.git$" },
+                dotfiles = false,
+                git_ignored = true,
+            },
             renderer = { group_empty = true },
             update_focused_file = { enable = true, update_root = false },
             view = { width = 30 },
